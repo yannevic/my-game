@@ -276,9 +276,58 @@
          "visible":true,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":6,
+         "name":"npcs",
+         "objects":[
+                {
+                 "height":0,
+                 "id":9,
+                 "name":"Teste",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"mensagem",
+                         "type":"string",
+                         "value":"Oi, Miguel! Esta \u00e9 uma mensagem de teste."
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":471.333333333333,
+                 "y":333.333333333333
+                }, 
+                {
+                 "height":0,
+                 "id":10,
+                 "name":"Teste2",
+                 "opacity":1,
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"mensagem",
+                         "type":"string",
+                         "value":"hahaha teste2"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":343.666666666667,
+                 "y":349.333333333333
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextlayerid":6,
- "nextobjectid":8,
+ "nextlayerid":7,
+ "nextobjectid":12,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.2",

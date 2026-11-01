@@ -13,6 +13,8 @@ class MainScene extends Phaser.Scene {
   private cabelo!: Phaser.GameObjects.Sprite
   private setas!: Phaser.Types.Input.Keyboard.CursorKeys
   private wasd!: { W: Phaser.Input.Keyboard.Key; A: Phaser.Input.Keyboard.Key; S: Phaser.Input.Keyboard.Key; D: Phaser.Input.Keyboard.Key }
+  private npcs: { nome: string; mensagem: string; x: number; y: number }[] = []
+  private npcPerto: { nome: string; mensagem: string; x: number; y: number } | null = null
 
   constructor() {
     super('MainScene')
@@ -28,6 +30,7 @@ class MainScene extends Phaser.Scene {
     this.load.spritesheet('corpo_walk', 'assets/characters/human/base_walk_strip8.png', quadro)
     this.load.spritesheet('cabelo_idle', 'assets/characters/human/shorthair_idle_strip9.png', quadro)
     this.load.spritesheet('cabelo_walk', 'assets/characters/human/shorthair_walk_strip8.png', quadro)
+    this.load.image('exclamacao', 'assets/cozy-ui/exclamacao.png')
   }
 
   create() {
@@ -115,6 +118,35 @@ class MainScene extends Phaser.Scene {
     }
     this.physics.add.collider(this.jogador, paredes)
 
+        // NPCs: personagens parados, lidos da camada "npcs" do Tiled
+    const pontosNpc = mapa.getObjectLayer('npcs')?.objects ?? []
+    const npcsFisicos = this.physics.add.staticGroup()
+    for (const ponto of pontosNpc) {
+      const x = ponto.x ?? 0
+      const y = ponto.y ?? 0
+      const mensagem =
+        (ponto.properties as { name: string; value: string }[] | undefined)?.find(
+          (p) => p.name === 'mensagem',
+        )?.value ?? ''
+
+      // Desenho do personagem (corpo + cabelo), parado
+      this.add.sprite(x, y + DESLOCAMENTO_Y, 'corpo_idle').play('corpo-idle')
+      this.add.sprite(x, y + DESLOCAMENTO_Y, 'cabelo_idle').play('cabelo-idle')
+
+      // Caixa de colisão invisível, do mesmo tamanho da do jogador (10x8)
+      const caixa = npcsFisicos.create(x, y, 'tiles') as Phaser.Physics.Arcade.Sprite
+      caixa.setVisible(false)
+      caixa.setDisplaySize(10, 8)
+      caixa.refreshBody()
+
+            // "!" fixo em cima de cada NPC
+      this.add.image(x, y - 12, 'exclamacao').setScale(0.15).setOrigin(0.5, 1).setDepth(10)
+
+      this.npcs.push({ nome: ponto.name, mensagem, x, y })
+    }
+    this.physics.add.collider(this.jogador, npcsFisicos)
+    console.log('NPCs encontrados:', this.npcs)
+
     // Câmera: zoom, limites do mapa e seguindo o jogador
     const camera = this.cameras.main
     camera.setZoom(3)
@@ -151,6 +183,18 @@ class MainScene extends Phaser.Scene {
       this.corpoFisico.setVelocity(0, 0)
       this.corpo.play('corpo-idle', true)
       this.cabelo.play('cabelo-idle', true)
+    }
+
+        // Procura o NPC mais próximo dentro do alcance
+    const ALCANCE = 24
+    this.npcPerto = null
+    let menorDistancia = ALCANCE
+    for (const npc of this.npcs) {
+      const distancia = Phaser.Math.Distance.Between(this.jogador.x, this.jogador.y, npc.x, npc.y)
+      if (distancia < menorDistancia) {
+        menorDistancia = distancia
+        this.npcPerto = npc
+      }
     }
   }
 }
