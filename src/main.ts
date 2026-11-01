@@ -31,6 +31,11 @@ class MainScene extends Phaser.Scene {
     // Camada de colisão: criada, mas invisível para o jogador
     const colisao = mapa.createLayer('colisao', tileset)
     colisao?.setVisible(false)
+        // Zoom da câmera: 3x deixa a pixel art grande e nítida
+    this.cameras.main.setZoom(3)
+
+    // Centraliza a câmera no meio do mapa (temporário, até o personagem existir)
+    this.cameras.main.centerOn(mapa.widthInPixels / 2, mapa.heightInPixels / 2)
   }
 }
 
