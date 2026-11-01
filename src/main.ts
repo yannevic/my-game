@@ -2,13 +2,15 @@ import Phaser from 'phaser'
 import './style.css'
 
 const VELOCIDADE = 80 // pixels por segundo
+// Altura dos sprites em relação à caixinha de colisão.
+// Número MAIOR = desenho mais para BAIXO. Número MENOR = desenho mais para CIMA.
+const DESLOCAMENTO_Y = -2
 
 class MainScene extends Phaser.Scene {
   private jogador!: Phaser.GameObjects.Container
+  private corpoFisico!: Phaser.Physics.Arcade.Body
   private corpo!: Phaser.GameObjects.Sprite
   private cabelo!: Phaser.GameObjects.Sprite
-  private larguraMapa = 0
-  private alturaMapa = 0
   private setas!: Phaser.Types.Input.Keyboard.CursorKeys
   private wasd!: { W: Phaser.Input.Keyboard.Key; A: Phaser.Input.Keyboard.Key; S: Phaser.Input.Keyboard.Key; D: Phaser.Input.Keyboard.Key }
 
@@ -41,7 +43,9 @@ class MainScene extends Phaser.Scene {
     mapa.createLayer('decoracao_fundo', tileset)
     mapa.createLayer('decoracao', tileset)
 
+    // Colisão por tiles: todo tile pintado bloqueia (-1 = vazio)
     const colisao = mapa.createLayer('colisao', tileset)
+    colisao?.setCollisionByExclusion([-1])
     colisao?.setVisible(false)
 
     // Animações
@@ -70,9 +74,9 @@ class MainScene extends Phaser.Scene {
       repeat: -1,
     })
 
-    // Personagem: corpo e cabelo dentro de um container (se mexem juntos)
-    this.corpo = this.add.sprite(0, 0, 'corpo_idle')
-    this.cabelo = this.add.sprite(0, 0, 'cabelo_idle')
+    // Personagem: sprites um pouco acima do ponto (y = -10) para os pés ficarem na caixinha
+        this.corpo = this.add.sprite(0, DESLOCAMENTO_Y, 'corpo_idle')
+    this.cabelo = this.add.sprite(0, DESLOCAMENTO_Y, 'cabelo_idle')
     this.corpo.play('corpo-idle')
     this.cabelo.play('cabelo-idle')
     this.jogador = this.add.container(mapa.widthInPixels / 2, mapa.heightInPixels / 2, [
@@ -80,10 +84,39 @@ class MainScene extends Phaser.Scene {
       this.cabelo,
     ])
 
+    // Corpo físico: caixinha de 10x8 (o container precisa de tamanho antes)
+    this.jogador.setSize(10, 8)
+    this.physics.add.existing(this.jogador)
+    this.corpoFisico = this.jogador.body as Phaser.Physics.Arcade.Body
+    this.corpoFisico.setCollideWorldBounds(true)
+
+    // Limites do mundo = tamanho do mapa
+    this.physics.world.setBounds(0, 0, mapa.widthInPixels, mapa.heightInPixels)
+
+    // Colisão com os tiles
+    if (colisao) {
+      this.physics.add.collider(this.jogador, colisao)
+    }
+
+      // Colisão com os retângulos: paredes estáticas e invisíveis
+    const paredes = this.physics.add.staticGroup()
+    const objetos = mapa.getObjectLayer('colisao_objetos')?.objects ?? []
+  
+    for (const obj of objetos) {
+      const largura = obj.width ?? 0
+      const altura = obj.height ?? 0
+      const centroX = (obj.x ?? 0) + largura / 2
+      const centroY = (obj.y ?? 0) + altura / 2
+      // Imagem invisível (usa a textura 'tiles' só para ter um corpo), esticada para o tamanho do retângulo
+      const parede = paredes.create(centroX, centroY, 'tiles') as Phaser.Physics.Arcade.Sprite
+      parede.setVisible(false)
+      parede.setDisplaySize(largura, altura)
+      parede.refreshBody()
+    }
+    this.physics.add.collider(this.jogador, paredes)
+
     // Câmera: zoom, limites do mapa e seguindo o jogador
     const camera = this.cameras.main
-    this.larguraMapa = mapa.widthInPixels
-    this.alturaMapa = mapa.heightInPixels
     camera.setZoom(3)
     camera.setBounds(0, 0, mapa.widthInPixels, mapa.heightInPixels)
     camera.startFollow(this.jogador, true)
@@ -94,7 +127,7 @@ class MainScene extends Phaser.Scene {
     this.wasd = teclado.addKeys('W,A,S,D') as typeof this.wasd
   }
 
-  update(_tempo: number, delta: number) {
+  update() {
     let dx = 0
     let dy = 0
     if (this.setas.left.isDown || this.wasd.A.isDown) dx -= 1
@@ -103,13 +136,9 @@ class MainScene extends Phaser.Scene {
     if (this.setas.down.isDown || this.wasd.S.isDown) dy += 1
 
     if (dx !== 0 || dy !== 0) {
+      // normalize: mesma velocidade em todas as direções
       const direcao = new Phaser.Math.Vector2(dx, dy).normalize()
-      const passo = VELOCIDADE * (delta / 1000)
-      this.jogador.x += direcao.x * passo
-      this.jogador.y += direcao.y * passo
-      // Não deixa o personagem sair do mapa (margem de 8 px)
-      this.jogador.x = Phaser.Math.Clamp(this.jogador.x, 8, this.larguraMapa - 8)
-      this.jogador.y = Phaser.Math.Clamp(this.jogador.y, 8, this.alturaMapa - 8)
+      this.corpoFisico.setVelocity(direcao.x * VELOCIDADE, direcao.y * VELOCIDADE)
 
       if (dx !== 0) {
         this.corpo.setFlipX(dx < 0)
@@ -119,6 +148,7 @@ class MainScene extends Phaser.Scene {
       this.corpo.play('corpo-walk', true)
       this.cabelo.play('cabelo-walk', true)
     } else {
+      this.corpoFisico.setVelocity(0, 0)
       this.corpo.play('corpo-idle', true)
       this.cabelo.play('cabelo-idle', true)
     }
@@ -132,5 +162,9 @@ new Phaser.Game({
   parent: 'game',
   backgroundColor: '#5aa469',
   pixelArt: true,
+  physics: {
+    default: 'arcade',
+    arcade: { debug: true }, // mostra as caixas de colisão (voltar para false no fim)
+  },
   scene: [MainScene],
 })
