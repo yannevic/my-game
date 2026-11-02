@@ -16,7 +16,12 @@ class MainScene extends Phaser.Scene {
   private npcs: { nome: string; mensagem: string; x: number; y: number }[] = []
   private npcPerto: { nome: string; mensagem: string; x: number; y: number } | null = null
   private teclaE!: Phaser.Input.Keyboard.Key
-  private balao!: Phaser.GameObjects.Text
+  private dialogoAberto = false
+  private caixaEl!: HTMLElement
+  private nomeEl!: HTMLElement
+  private textoEl!: HTMLElement
+  private teclaEspaco!: Phaser.Input.Keyboard.Key
+  private teclaEnter!: Phaser.Input.Keyboard.Key
   private dica!: Phaser.GameObjects.Container
   private icones: Phaser.GameObjects.Image[] = []
 
@@ -164,24 +169,19 @@ class MainScene extends Phaser.Scene {
         // Tecla E para falar com o NPC
     this.teclaE = teclado.addKey('E')
 
-    // Balão provisório (a caixa de diálogo bonita vem na Etapa 10)
-    this.balao = this.add
-      .text(0, 0, '', {
-        fontSize: '8px',
-        color: '#ffffff',
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        padding: { x: 4, y: 3 },
-        wordWrap: { width: 120 },
-      })
-      .setOrigin(0.5, 1)
-      .setDepth(20)
-      .setVisible(false)
+        this.teclaEspaco = teclado.addKey('SPACE')
+    this.teclaEnter = teclado.addKey('ENTER')
+
+    // Caixa de diálogo (HTML, definida no index.html)
+    this.caixaEl = document.getElementById('caixa-dialogo')!
+    this.nomeEl = this.caixaEl.querySelector('.nome')!
+    this.textoEl = this.caixaEl.querySelector('.texto')!
       
        // Aviso "E / Interagir": botão em cima, palavra embaixo (texto desenhado grande e encolhido, para ficar nítido)
     this.textures.get('tecla').setFilter(Phaser.Textures.FilterMode.LINEAR)
-    const botao = this.add.image(0, -8, 'tecla').setOrigin(0.5, 1).setDisplaySize(10, 10)
+    const botao = this.add.image(0, -8, 'tecla').setOrigin(0.5, 1).setDisplaySize(8, 8)
     const letra = this.add
-      .text(0, -13.5, 'E', { fontFamily: 'Fredoka', fontStyle: '500', fontSize: '21px', color: '#5a4a45' })
+      .text(0, -12.5, 'E', { fontFamily: 'Fredoka', fontStyle: '500', fontSize: '18px', color: '#5a4a45' })
       .setOrigin(0.5)
       .setScale(1 / 3)
     const rotulo = this.add
@@ -196,9 +196,40 @@ class MainScene extends Phaser.Scene {
       .setOrigin(0.5, 1)
       .setScale(1 / 3)
     this.dica = this.add.container(0, 0, [botao, letra, rotulo]).setDepth(20).setVisible(false)
+
+    
+  }
+
+    private abrirDialogo(nome: string, mensagem: string) {
+    this.dialogoAberto = true
+    this.nomeEl.textContent = nome
+    this.textoEl.textContent = mensagem
+    this.caixaEl.classList.add('aberta')
+    // Descarta teclas apertadas antes, para a caixa não fechar sozinha
+    Phaser.Input.Keyboard.JustDown(this.teclaEspaco)
+    Phaser.Input.Keyboard.JustDown(this.teclaEnter)
+  }
+
+  private fecharDialogo() {
+    this.dialogoAberto = false
+    this.caixaEl.classList.remove('aberta')
   }
 
   update() {
+        // Caixa aberta: personagem parado; E, Espaço ou Enter fecham
+    if (this.dialogoAberto) {
+      this.corpoFisico.setVelocity(0, 0)
+      this.corpo.play('corpo-idle', true)
+      this.cabelo.play('cabelo-idle', true)
+      if (
+        Phaser.Input.Keyboard.JustDown(this.teclaE) ||
+        Phaser.Input.Keyboard.JustDown(this.teclaEspaco) ||
+        Phaser.Input.Keyboard.JustDown(this.teclaEnter)
+      ) {
+        this.fecharDialogo()
+      }
+      return
+    }
     let dx = 0
     let dy = 0
     if (this.setas.left.isDown || this.wasd.A.isDown) dx -= 1
@@ -235,23 +266,16 @@ class MainScene extends Phaser.Scene {
         this.npcPerto = npc
       }
     }
-        // Apertou E perto de um NPC: mostra a mensagem em cima dele
+        // Apertou E perto de um NPC: abre a caixa de diálogo
     if (Phaser.Input.Keyboard.JustDown(this.teclaE) && this.npcPerto) {
-      this.balao.setText(`${this.npcPerto.nome}: ${this.npcPerto.mensagem}`)
-      this.balao.setPosition(this.npcPerto.x, this.npcPerto.y - 28)
-      this.balao.setVisible(true)
+      this.abrirDialogo(this.npcPerto.nome, this.npcPerto.mensagem)
     }
 
-    // Se afastou de todos os NPCs, esconde a mensagem
-    if (!this.npcPerto) {
-      this.balao.setVisible(false)
-    }
-    
     // Perto de um NPC: o aviso substitui o "!". Longe: o "!" volta
     this.npcs.forEach((npc, i) => {
       this.icones[i].setVisible(npc !== this.npcPerto)
     })
-    this.dica.setVisible(this.npcPerto !== null && !this.balao.visible)
+    this.dica.setVisible(this.npcPerto !== null && !this.dialogoAberto)
     if (this.npcPerto) {
       this.dica.setPosition(this.npcPerto.x, this.npcPerto.y - 12)
     }
@@ -262,8 +286,11 @@ class MainScene extends Phaser.Scene {
 document.fonts.load('500 9px Fredoka').then(() => {
   new Phaser.Game({
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
+    scale: {
+      mode: Phaser.Scale.RESIZE, // o jogo ocupa a janela inteira
+      width: '100%',
+      height: '100%',
+    },
     parent: 'game',
     backgroundColor: '#5aa469',
     pixelArt: true,

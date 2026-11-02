@@ -6,3 +6,56 @@ body {
   align-items: center;
   min-height: 100vh;
 }
+
+#caixa-dialogo {
+  display: none;
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  width: min(600px, 92vw);
+  aspect-ratio: 1090 / 330;
+  background: url('/assets/cozy-ui/dialogo.png') center / 100% 100% no-repeat;
+  font-family: 'Baloo 2', sans-serif;
+  color: #5a4a45;
+  z-index: 10;
+  pointer-events: none;
+}
+
+#caixa-dialogo.aberta {
+  display: block;
+}
+
+/* Área do texto: deixa folga pros furos da espiral à esquerda */
+#caixa-dialogo .conteudo {
+  position: absolute;
+  inset: 14% 3% 14% 35%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#caixa-dialogo .nome {
+  font-weight: 600;
+  font-size: clamp(14px, 2.4vw, 22px);
+  color: #c0568a;
+}
+
+#caixa-dialogo .texto {
+  font-weight: 400;
+  font-size: clamp(14px, 2.2vw, 20px);
+  line-height: 1.3;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#game {
+  width: 100%;
+  height: 100%;
+}
