@@ -446,3 +446,86 @@ textarea {
   -webkit-user-select: text;
   user-select: text;
 }
+
+/* Janelinha de confirmação (Sair) */
+#confirmar {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(31, 42, 77, 0.55);
+  align-items: center;
+  justify-content: center;
+  font-family: 'Baloo 2', sans-serif;
+  cursor: url('/assets/cozy-ui/cursor.png') 10 4, auto;
+}
+
+#confirmar.aberta {
+  display: flex;
+}
+
+/* TAMANHO da janelinha: mexa só no 40vh (menor = menor) */
+#confirmar .janela {
+  position: relative;
+  width: min(90vw, 30vh * 5 / 3);
+  aspect-ratio: 5 / 3;
+  container-type: size;
+  background: url('/assets/cozy-ui/janela.png') center / 100% 100% no-repeat;
+  image-rendering: pixelated;
+}
+
+/* Título: dentro da faixa verde de cima */
+#confirmar h2 {
+  position: absolute;
+  top: 4%;
+  left: 0;
+  right: 0;
+  height: 20%;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 8cqw;
+  color: #fff;
+  text-shadow: 0 0.5cqw 0 #2f7d1e;
+}
+
+/* Pergunta: no meio do papel */
+#confirmar p {
+  position: absolute;
+  top: 36%;
+  left: 0;
+  right: 0;
+  margin: 0;
+  font-weight: 400;
+  font-size: 6cqw;
+  color: #5a4a45;
+  text-align: center;
+}
+
+/* Botões: embaixo (bottom maior = mais para cima) */
+#confirmar .acoes {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 17%;
+  display: flex;
+  justify-content: center;
+  gap: 6cqw;
+}
+
+#confirmar .botao {
+  width: 35cqw;
+  min-width: 35cqw;
+  max-width: 35cqw;
+  height: 20cqh;
+  padding: 0 0 3cqh; /* levanta o texto do botão */
+  font-size: 7cqw;
+  text-shadow: 0 0.5cqw 0 #2a6f97;
+}
+
+#confirmar .botao.vermelho {
+  background-image: url('/assets/cozy-ui/botao_vermelho.png');
+  text-shadow: 0 0.5cqw 0 #8f2a2a;
+}

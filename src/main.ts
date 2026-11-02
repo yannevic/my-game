@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import './style.css'
+import './sair'
 
 const VELOCIDADE = 80 // pixels por segundo
 // Altura dos sprites em relação à caixinha de colisão.
