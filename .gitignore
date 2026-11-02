@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 public/assets/cozy-ui/
+
+dist-electron/
+release/
