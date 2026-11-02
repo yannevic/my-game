@@ -15,6 +15,10 @@ class MainScene extends Phaser.Scene {
   private wasd!: { W: Phaser.Input.Keyboard.Key; A: Phaser.Input.Keyboard.Key; S: Phaser.Input.Keyboard.Key; D: Phaser.Input.Keyboard.Key }
   private npcs: { nome: string; mensagem: string; x: number; y: number }[] = []
   private npcPerto: { nome: string; mensagem: string; x: number; y: number } | null = null
+  private teclaE!: Phaser.Input.Keyboard.Key
+  private balao!: Phaser.GameObjects.Text
+  private dica!: Phaser.GameObjects.Container
+  private icones: Phaser.GameObjects.Image[] = []
 
   constructor() {
     super('MainScene')
@@ -23,7 +27,6 @@ class MainScene extends Phaser.Scene {
   preload() {
     this.load.image('tiles', 'assets/tilesets/spr_tileset_sunnysideworld_16px.png')
     this.load.tilemapTiledJSON('mapa', 'assets/maps/mapa.json')
-
     // Personagem: cada tira tem quadros de 96x64
     const quadro = { frameWidth: 96, frameHeight: 64 }
     this.load.spritesheet('corpo_idle', 'assets/characters/human/base_idle_strip9.png', quadro)
@@ -31,6 +34,7 @@ class MainScene extends Phaser.Scene {
     this.load.spritesheet('cabelo_idle', 'assets/characters/human/shorthair_idle_strip9.png', quadro)
     this.load.spritesheet('cabelo_walk', 'assets/characters/human/shorthair_walk_strip8.png', quadro)
     this.load.image('exclamacao', 'assets/cozy-ui/exclamacao.png')
+    this.load.image('tecla', 'assets/cozy-ui/tecla.png')
   }
 
   create() {
@@ -140,7 +144,7 @@ class MainScene extends Phaser.Scene {
       caixa.refreshBody()
 
             // "!" fixo em cima de cada NPC
-      this.add.image(x, y - 12, 'exclamacao').setScale(0.15).setOrigin(0.5, 1).setDepth(10)
+      this.icones.push(this.add.image(x, y - 12, 'exclamacao').setScale(0.15).setOrigin(0.5, 1).setDepth(10))
 
       this.npcs.push({ nome: ponto.name, mensagem, x, y })
     }
@@ -157,6 +161,41 @@ class MainScene extends Phaser.Scene {
     const teclado = this.input.keyboard!
     this.setas = teclado.createCursorKeys()
     this.wasd = teclado.addKeys('W,A,S,D') as typeof this.wasd
+        // Tecla E para falar com o NPC
+    this.teclaE = teclado.addKey('E')
+
+    // Balão provisório (a caixa de diálogo bonita vem na Etapa 10)
+    this.balao = this.add
+      .text(0, 0, '', {
+        fontSize: '8px',
+        color: '#ffffff',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        padding: { x: 4, y: 3 },
+        wordWrap: { width: 120 },
+      })
+      .setOrigin(0.5, 1)
+      .setDepth(20)
+      .setVisible(false)
+      
+       // Aviso "E / Interagir": botão em cima, palavra embaixo (texto desenhado grande e encolhido, para ficar nítido)
+    this.textures.get('tecla').setFilter(Phaser.Textures.FilterMode.LINEAR)
+    const botao = this.add.image(0, -8, 'tecla').setOrigin(0.5, 1).setDisplaySize(10, 10)
+    const letra = this.add
+      .text(0, -13.5, 'E', { fontFamily: 'Fredoka', fontStyle: '500', fontSize: '21px', color: '#5a4a45' })
+      .setOrigin(0.5)
+      .setScale(1 / 3)
+    const rotulo = this.add
+      .text(0, 0, 'Interagir', {
+        fontFamily: 'Fredoka',
+        fontStyle: '500',
+        fontSize: '15px',
+        color: '#ffffff',
+        stroke: '#5a4a45',
+        strokeThickness: 4,
+      })
+      .setOrigin(0.5, 1)
+      .setScale(1 / 3)
+    this.dica = this.add.container(0, 0, [botao, letra, rotulo]).setDepth(20).setVisible(false)
   }
 
   update() {
@@ -196,19 +235,42 @@ class MainScene extends Phaser.Scene {
         this.npcPerto = npc
       }
     }
+        // Apertou E perto de um NPC: mostra a mensagem em cima dele
+    if (Phaser.Input.Keyboard.JustDown(this.teclaE) && this.npcPerto) {
+      this.balao.setText(`${this.npcPerto.nome}: ${this.npcPerto.mensagem}`)
+      this.balao.setPosition(this.npcPerto.x, this.npcPerto.y - 28)
+      this.balao.setVisible(true)
+    }
+
+    // Se afastou de todos os NPCs, esconde a mensagem
+    if (!this.npcPerto) {
+      this.balao.setVisible(false)
+    }
+    
+    // Perto de um NPC: o aviso substitui o "!". Longe: o "!" volta
+    this.npcs.forEach((npc, i) => {
+      this.icones[i].setVisible(npc !== this.npcPerto)
+    })
+    this.dica.setVisible(this.npcPerto !== null && !this.balao.visible)
+    if (this.npcPerto) {
+      this.dica.setPosition(this.npcPerto.x, this.npcPerto.y - 12)
+    }
   }
 }
 
-new Phaser.Game({
-  type: Phaser.AUTO,
-  width: 800,
-  height: 600,
-  parent: 'game',
-  backgroundColor: '#5aa469',
-  pixelArt: true,
-  physics: {
-    default: 'arcade',
-    arcade: { debug: true }, // mostra as caixas de colisão (voltar para false no fim)
-  },
-  scene: [MainScene],
+// Espera a fonte carregar antes de iniciar o jogo
+document.fonts.load('500 9px Fredoka').then(() => {
+  new Phaser.Game({
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    parent: 'game',
+    backgroundColor: '#5aa469',
+    pixelArt: true,
+    physics: {
+      default: 'arcade',
+      arcade: { debug: true }, // mostra as caixas de colisão (voltar para false no fim)
+    },
+    scene: [MainScene],
+  })
 })
