@@ -101,7 +101,7 @@ body {
 
 #menu .casal {
   position: absolute;
-  left: 20cqw;
+  left: 23cqw;
   bottom: 4cqh;
   height: 52cqh;
   width: auto;
@@ -370,4 +370,79 @@ body {
   0%   { transform: translateX(0); opacity: 1; }
   70%  { opacity: 1; }
   100% { transform: translateX(var(--d)); opacity: 0; }
+}
+
+/* Árvores e cabana */
+#menu .pinheiros { left: -3cqw;  bottom: 11cqh; height: 48cqh; width: auto; }
+/* árvore grande: maior e mais alta, pra aparecer acima e à esquerda da cabana */
+#menu .arvore { right: -2cqw; bottom: 14cqh; height: 52cqh; width: auto; }
+#menu .cabana    { right: -7cqw; bottom: 11cqh;  height: 38cqh; width: auto; }
+
+/* Luzes: a da direita é a imagem original; a da esquerda é a mesma espelhada */
+#menu .luzes-esq { left: 0;  top: -1cqh; width: 22cqw; height: auto; transform: scaleX(-1); }
+#menu .luzes-dir { right: 0cqw; top: -1cqh; width: 21cqw; height: auto; }
+
+/* Grama: as duas faixas ficam no mesmo lugar; a "b" aparece e some por cima da "a" */
+#menu .grama-a,
+#menu .grama-b { left: 0; bottom: -1cqh; width: 100%; height: auto; }
+
+#menu .grama-b {
+  animation: balanca 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes balanca {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Lâmpada: 2 quadros (apagada/acesa) alternando */
+#menu .lampada {
+  position: absolute;
+  top: 70.5cqh;
+  width: 5cqw;
+  aspect-ratio: 323 / 447;
+  background: url('/assets/menu/cena/lampada_anim.png') 0 0 / 200% 100% no-repeat;
+  image-rendering: pixelated;
+  pointer-events: none;
+  animation: quadros 1.6s steps(1) infinite;
+}
+
+/* Pássaro: 2 quadros (asa) + voa da esquerda pra direita */
+#menu .passaro {
+  position: absolute;
+  left: -8cqw;
+  aspect-ratio: 520 / 442;
+  background: url('/assets/menu/cena/passaro_anim.png') 0 0 / 200% 100% no-repeat;
+  image-rendering: pixelated;
+  pointer-events: none;
+  animation: voar 42s linear infinite, quadros 0.6s steps(1) infinite;
+}
+
+@keyframes quadros {
+  0%   { background-position: 0 0; }
+  50%  { background-position: 100% 0; }
+  100% { background-position: 100% 0; }
+}
+
+@keyframes voar {
+  from { transform: translateX(0); }
+  to   { transform: translateX(116cqw); }
+}
+
+/* Jogo todo: não deixa selecionar texto nem arrastar imagens */
+body {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+img {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+/* Campos de digitação (ex.: nome do personagem) continuam selecionáveis */
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
 }
