@@ -6,6 +6,7 @@ const VELOCIDADE = 80 // pixels por segundo
 // Número MAIOR = desenho mais para BAIXO. Número MENOR = desenho mais para CIMA.
 const DESLOCAMENTO_Y = -2
 const VELOCIDADE_TEXTO = 35 // milissegundos por letra (menor = mais rápido)
+type Npc = { nome: string; mensagem: string; retrato: string; x: number; y: number }
 
 class MainScene extends Phaser.Scene {
   private jogador!: Phaser.GameObjects.Container
@@ -14,8 +15,9 @@ class MainScene extends Phaser.Scene {
   private cabelo!: Phaser.GameObjects.Sprite
   private setas!: Phaser.Types.Input.Keyboard.CursorKeys
   private wasd!: { W: Phaser.Input.Keyboard.Key; A: Phaser.Input.Keyboard.Key; S: Phaser.Input.Keyboard.Key; D: Phaser.Input.Keyboard.Key }
-  private npcs: { nome: string; mensagem: string; x: number; y: number }[] = []
-  private npcPerto: { nome: string; mensagem: string; x: number; y: number } | null = null
+  private npcs: Npc[] = []
+  private npcPerto: Npc | null = null
+  private retratoEl!: HTMLImageElement
   private teclaE!: Phaser.Input.Keyboard.Key
   private dialogoAberto = false
   private caixaEl!: HTMLElement
@@ -137,10 +139,12 @@ class MainScene extends Phaser.Scene {
     for (const ponto of pontosNpc) {
       const x = ponto.x ?? 0
       const y = ponto.y ?? 0
-      const mensagem =
+      const propriedade = (nome: string) =>
         (ponto.properties as { name: string; value: string }[] | undefined)?.find(
-          (p) => p.name === 'mensagem',
+          (p) => p.name === nome,
         )?.value ?? ''
+      const mensagem = propriedade('mensagem')
+      const retrato = propriedade('retrato')
 
       // Desenho do personagem (corpo + cabelo), parado
       this.add.sprite(x, y + DESLOCAMENTO_Y, 'corpo_idle').play('corpo-idle')
@@ -155,7 +159,7 @@ class MainScene extends Phaser.Scene {
             // "!" fixo em cima de cada NPC
       this.icones.push(this.add.image(x, y - 12, 'exclamacao').setScale(0.15).setOrigin(0.5, 1).setDepth(10))
 
-      this.npcs.push({ nome: ponto.name, mensagem, x, y })
+          this.npcs.push({ nome: ponto.name, mensagem, retrato, x, y })
     }
     this.physics.add.collider(this.jogador, npcsFisicos)
     console.log('NPCs encontrados:', this.npcs)
@@ -180,6 +184,7 @@ class MainScene extends Phaser.Scene {
     this.caixaEl = document.getElementById('caixa-dialogo')!
     this.nomeEl = this.caixaEl.querySelector('.nome')!
     this.textoEl = this.caixaEl.querySelector('.texto')!
+        this.retratoEl = this.caixaEl.querySelector('.retrato')!
       
        // Aviso "E / Interagir": botão em cima, palavra embaixo (texto desenhado grande e encolhido, para ficar nítido)
     this.textures.get('tecla').setFilter(Phaser.Textures.FilterMode.LINEAR)
@@ -204,9 +209,15 @@ class MainScene extends Phaser.Scene {
     
   }
 
-  private abrirDialogo(nome: string, mensagem: string) {
+    private abrirDialogo(nome: string, mensagem: string, retrato: string) {
     this.dialogoAberto = true
     this.nomeEl.textContent = nome
+        if (retrato) {
+      this.retratoEl.src = `assets/portraits/${retrato}`
+      this.retratoEl.style.display = 'block'
+    } else {
+      this.retratoEl.style.display = 'none'
+    }
     this.textoCompleto = mensagem
     this.caixaEl.classList.add('aberta')
     // Descarta teclas apertadas antes, para a caixa não fechar sozinha
@@ -311,7 +322,7 @@ class MainScene extends Phaser.Scene {
     }
         // Apertou E perto de um NPC: abre a caixa de diálogo
     if (Phaser.Input.Keyboard.JustDown(this.teclaE) && this.npcPerto) {
-      this.abrirDialogo(this.npcPerto.nome, this.npcPerto.mensagem)
+            this.abrirDialogo(this.npcPerto.nome, this.npcPerto.mensagem, this.npcPerto.retrato)
     }
 
     // Perto de um NPC: o aviso substitui o "!". Longe: o "!" volta

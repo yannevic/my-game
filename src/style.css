@@ -59,3 +59,14 @@ body {
   width: 100%;
   height: 100%;
 }
+
+/* Retrato do NPC: fica na esquerda, espelhado para olhar pro texto */
+#caixa-dialogo .retrato {
+  position: absolute;
+  left: 7.5%;
+  bottom: 9%;
+  width: 23%;
+  height: auto;
+  transform: scaleX(-1);
+  display: none;
+}
