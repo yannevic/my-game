@@ -355,3 +355,12 @@ document.fonts.load('500 9px Fredoka').then(() => {
     scene: [MainScene],
   })
 })
+
+// Tela inicial: Novo jogo abre os slots; Voltar fecha
+const slotsEl = document.getElementById('slots')!
+document.getElementById('btn-novo')!.addEventListener('click', () => {
+  slotsEl.classList.add('aberta')
+})
+document.getElementById('btn-voltar')!.addEventListener('click', () => {
+  slotsEl.classList.remove('aberta')
+})
