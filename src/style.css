@@ -70,3 +70,109 @@ body {
   transform: scaleX(-1);
   display: none;
 }
+
+/* Tela inicial */
+/* Tela inicial: o fundo cobre a janela; o palco 16:9 fica no centro e escala junto */
+#menu {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: #1f2a4d url('/assets/menu/fundo.png') center / cover no-repeat;
+  image-rendering: pixelated;
+  font-family: 'Baloo 2', sans-serif;
+  overflow: hidden;
+  cursor: url('/assets/cozy-ui/cursor.png') 10 4, auto;
+}
+
+#menu:active,
+#menu .botao:active {
+  cursor: url('/assets/cozy-ui/cursor_clique.png') 10 4, auto;
+}
+
+/* Palco 16:9: tudo dentro dele usa "cqw" (1cqw = 1% da largura do palco) */
+#menu .palco {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(100vw, 100vh * 16 / 9);
+  aspect-ratio: 16 / 9;
+  container-type: size;
+}
+
+#menu .casal {
+  position: absolute;
+  left: 20cqw;
+  bottom: 6cqh;
+  height: 52cqh;
+  width: auto;
+  image-rendering: pixelated;
+}
+
+#menu .titulo {
+  position: absolute;
+  top: 6cqh;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+#menu h1 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 12cqw;
+  line-height: 1;
+  color: #fff4e0;
+  text-shadow: 0 0.4cqw 0 #1f2a4d, 0 0 2cqw rgba(31, 42, 77, 0.5);
+}
+
+#menu .titulo p {
+  margin: 0;
+  font-weight: 400;
+  font-size: 3cqw;
+  color: #ffb3c7;
+  text-shadow: 0 0.2cqw 0 #1f2a4d;
+}
+
+/* Botões: centro do palco, um pouco abaixo do meio */
+#menu .botoes {
+  position: absolute;
+  left: 50%;
+  top: 37cqh;
+  transform: translate(-50%, 0);
+  display: flex;
+  flex-direction: column;
+  gap: 1cqh;
+  align-items: center;
+}
+
+.botao {
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  width: 18cqw;
+  min-width: 18cqw;
+  max-width: 18cqw;
+  height: 7.5cqh;
+  padding: 0;
+  white-space: nowrap;
+  border: none;
+  background: url('/assets/cozy-ui/botao.png') center / 100% 100% no-repeat;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 600;
+  font-size: 2cqw;
+  color: #fff;
+  text-shadow: 0 0.2cqw 0 #2a6f97;
+  cursor: url('/assets/cozy-ui/cursor.png') 10 4, pointer;
+  transition: transform 0.12s ease;
+  image-rendering: pixelated;
+}
+
+.botao:hover:not(:disabled) {
+  transform: scale(1.06);
+}
+
+.botao:disabled {
+  background-image: url('/assets/cozy-ui/botao_cinza.png');
+  color: #e8e8e8;
+  text-shadow: 0 0.2cqw 0 #7a7a7a;
+}
