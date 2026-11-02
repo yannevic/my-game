@@ -1,0 +1,16 @@
+[33m77965ac[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m feat: adiciona tela de slots do novo jogo
+[33m5a3f517[m feat: adiciona tela inicial com titulo, casal e botoes do menu
+[33m6b17ed6[m feat: adiciona retrato do npc na caixa de dialogo
+[33mc3ab54b[m feat: adiciona efeito de digitacao na caixa de dialogo
+[33mc28999f[m feat: adiciona caixa de dialogo e aviso de interacao com npcs
+[33m29f51ee[m feat: adiciona interacao com npcs, aviso de tecla e mensagem provisoria
+[33m554777d[m feat: adiciona npcs parados com colisao e icone de exclamacao
+[33mc5400eb[m feat: adiciona fisica e colisoes com tiles e objetos do mapa
+[33m3203bba[m feat: camera segue o personagem e limita movimento ao mapa
+[33m44422e4[m feat: adiciona zoom da camera para pixel art nitida
+[33m4549f0b[m feat: carrega e desenha o mapa do Tiled no Phaser
+[33m809fb3a[m feat: adiciona mapa inicial com camadas de chao, decoracao e colisao
+[33m497f6ad[m feat: adiciona sprites do personagem humano (idle e walk)
+[33mf5b9071[m feat: adiciona tileset do Sunnyside World
+[33mb300372[m chore: remove arquivos de exemplo do Vite
+[33mf9599f8[m chore: cria projeto com Vite, TypeScript e Phaser

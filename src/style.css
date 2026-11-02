@@ -76,7 +76,7 @@ body {
   position: fixed;
   inset: 0;
   z-index: 20;
-  background: #1f2a4d url('/assets/menu/fundo.png') center / cover no-repeat;
+  background: linear-gradient(#312f68 0%, #a24f7d 45%, #fe9f66 83%, #4b6b2f 83%, #1f3a3d 100%);
   image-rendering: pixelated;
   font-family: 'Baloo 2', sans-serif;
   overflow: hidden;
@@ -298,4 +298,76 @@ body {
   flex: 0 0 auto;
   margin-top: 1%;
   font-size: 2.5cqw;
+}
+
+/* Camadas da cena animada (ficam dentro do palco, atrás do casal e dos botões) */
+#menu .palco {
+  overflow: hidden;
+}
+
+#menu .camada {
+  position: absolute;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+#menu .fundo-cena {
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Nuvens: cada uma é um recorte da nuvens.png (--k = tamanho de 1 pixel da imagem) */
+#menu .nuvem {
+  --k: 0.026cqw;
+  position: absolute;
+  width: calc(var(--w) * var(--k));
+  height: calc(var(--h) * var(--k));
+  background: url('/assets/menu/cena/nuvens.png') no-repeat;
+  background-size: calc(1536 * var(--k)) calc(1024 * var(--k));
+  background-position: calc(var(--x) * var(--k) * -1) calc(var(--y) * var(--k) * -1);
+  image-rendering: pixelated;
+  pointer-events: none;
+  animation: deriva 60s ease-in-out infinite alternate;
+}
+
+#menu .nuvem.recorte {
+  clip-path: polygon(0 0, 85% 0, 85% 50%, 100% 50%, 100% 100%, 0 100%);
+}
+
+@keyframes deriva {
+  from { transform: translateX(0); }
+  to   { transform: translateX(var(--d)); }
+}
+
+/* Estrelas: a imagem tem 2 frames lado a lado; alterna rápido entre eles */
+#menu .estrela {
+  position: absolute;
+  aspect-ratio: 768 / 1024;
+  background: url('/assets/menu/cena/estrelas.png') 0 0 / 200% 100% no-repeat;
+  image-rendering: pixelated;
+  pointer-events: none;
+  animation: piscar 1.2s ease-in-out infinite;
+}
+
+#menu .estrela.pp { width: 1cqw; }
+#menu .estrela.p  { width: 1.6cqw; }
+#menu .estrela.m  { width: 2.4cqw; }
+#menu .estrela.g  { width: 3.2cqw; }
+
+@keyframes piscar {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.25; }
+}
+
+/* Nuvens que entram pelas bordas: andam em linha reta (sem voltar) e somem no fim */
+#menu .nuvem.entra {
+  animation: entra 90s linear infinite;
+}
+
+@keyframes entra {
+  0%   { transform: translateX(0); opacity: 1; }
+  70%  { opacity: 1; }
+  100% { transform: translateX(var(--d)); opacity: 0; }
 }
