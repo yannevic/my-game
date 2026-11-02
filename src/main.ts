@@ -5,6 +5,7 @@ const VELOCIDADE = 80 // pixels por segundo
 // Altura dos sprites em relação à caixinha de colisão.
 // Número MAIOR = desenho mais para BAIXO. Número MENOR = desenho mais para CIMA.
 const DESLOCAMENTO_Y = -2
+const VELOCIDADE_TEXTO = 35 // milissegundos por letra (menor = mais rápido)
 
 class MainScene extends Phaser.Scene {
   private jogador!: Phaser.GameObjects.Container
@@ -22,6 +23,9 @@ class MainScene extends Phaser.Scene {
   private textoEl!: HTMLElement
   private teclaEspaco!: Phaser.Input.Keyboard.Key
   private teclaEnter!: Phaser.Input.Keyboard.Key
+  private textoCompleto = ''
+  private digitando = false
+  private temporizador?: Phaser.Time.TimerEvent
   private dica!: Phaser.GameObjects.Container
   private icones: Phaser.GameObjects.Image[] = []
 
@@ -200,17 +204,53 @@ class MainScene extends Phaser.Scene {
     
   }
 
-    private abrirDialogo(nome: string, mensagem: string) {
+  private abrirDialogo(nome: string, mensagem: string) {
     this.dialogoAberto = true
     this.nomeEl.textContent = nome
-    this.textoEl.textContent = mensagem
+    this.textoCompleto = mensagem
     this.caixaEl.classList.add('aberta')
     // Descarta teclas apertadas antes, para a caixa não fechar sozinha
     Phaser.Input.Keyboard.JustDown(this.teclaEspaco)
     Phaser.Input.Keyboard.JustDown(this.teclaEnter)
+
+    // Começa a digitar
+    this.digitando = true
+    let letras = 0
+    this.mostrarTexto(0)
+    this.temporizador?.remove()
+    this.temporizador = this.time.addEvent({
+      delay: VELOCIDADE_TEXTO,
+      loop: true,
+      callback: () => {
+        letras++
+        this.mostrarTexto(letras)
+        if (letras >= this.textoCompleto.length) this.terminarDigitacao()
+      },
+    })
+  }
+
+  // Mostra as primeiras "quantidade" letras; o resto fica invisível mas ocupa o lugar
+  private mostrarTexto(quantidade: number) {
+    this.textoEl.innerHTML = ''
+    const visivel = document.createElement('span')
+    visivel.textContent = this.textoCompleto.slice(0, quantidade)
+    const oculto = document.createElement('span')
+    oculto.textContent = this.textoCompleto.slice(quantidade)
+    oculto.style.visibility = 'hidden'
+    this.textoEl.append(visivel, oculto)
+  }
+
+  private terminarDigitacao() {
+    this.temporizador?.remove()
+    this.temporizador = undefined
+    this.digitando = false
+    this.mostrarTexto(this.textoCompleto.length)
   }
 
   private fecharDialogo() {
+    this.temporizador?.remove()
+    this.temporizador = undefined
+    this.digitando = false
     this.dialogoAberto = false
     this.caixaEl.classList.remove('aberta')
   }
@@ -221,12 +261,15 @@ class MainScene extends Phaser.Scene {
       this.corpoFisico.setVelocity(0, 0)
       this.corpo.play('corpo-idle', true)
       this.cabelo.play('cabelo-idle', true)
-      if (
-        Phaser.Input.Keyboard.JustDown(this.teclaE) ||
-        Phaser.Input.Keyboard.JustDown(this.teclaEspaco) ||
-        Phaser.Input.Keyboard.JustDown(this.teclaEnter)
-      ) {
-        this.fecharDialogo()
+      const apertouE = Phaser.Input.Keyboard.JustDown(this.teclaE)
+      const apertouEspaco = Phaser.Input.Keyboard.JustDown(this.teclaEspaco)
+      const apertouEnter = Phaser.Input.Keyboard.JustDown(this.teclaEnter)
+      if (apertouE || apertouEspaco || apertouEnter) {
+        if (this.digitando) {
+          this.terminarDigitacao() // mostra tudo de uma vez
+        } else {
+          this.fecharDialogo()
+        }
       }
       return
     }
