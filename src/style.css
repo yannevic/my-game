@@ -663,3 +663,83 @@ textarea {
   background-image: url('/assets/cozy-ui/botao_vermelho.png');
   text-shadow: 0 0.5cqw 0 #8f2a2a;
 }
+
+/* Janelinha de criação do save (mesma imagem da janela do Sair) */
+#criar {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(31, 42, 77, 0.55);
+  align-items: center;
+  justify-content: center;
+  font-family: 'Baloo 2', sans-serif;
+  cursor: url('/assets/cozy-ui/cursor.png') 10 4, auto;
+}
+
+#criar.aberta {
+  display: flex;
+}
+
+#criar .janela {
+  position: relative;
+  width: min(90vw, 36vh * 5 / 3);
+  aspect-ratio: 5 / 3;
+  container-type: size;
+  background: url('/assets/cozy-ui/janela.png') center / 100% 100% no-repeat;
+  image-rendering: pixelated;
+}
+
+#criar h2 {
+  position: absolute;
+  top: 4%;
+  left: 0;
+  right: 0;
+  height: 20%;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 8cqw;
+  color: #fff;
+  text-shadow: 0 0.5cqw 0 #2f7d1e;
+}
+
+#criar input {
+  position: absolute;
+  top: 34%;
+  left: 12%;
+  right: 12%;
+  height: 16%;
+  box-sizing: border-box;
+  border: 0.6cqw solid #c9a98a;
+  border-radius: 2cqw;
+  background: rgba(255, 255, 255, 0.7);
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 7cqw;
+  color: #5a4a45;
+  text-align: center;
+  outline: none;
+  cursor: text;
+}
+
+#criar .acoes {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12%;
+  display: flex;
+  justify-content: center;
+  gap: 6cqw;
+}
+
+#criar .botao {
+  width: 35cqw;
+  min-width: 35cqw;
+  max-width: 35cqw;
+  height: 20cqh;
+  padding: 0 0 3cqh;
+  font-size: 7cqw;
+  text-shadow: 0 0.5cqw 0 #2a6f97;
+}

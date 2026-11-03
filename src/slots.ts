@@ -1,4 +1,5 @@
 import { listarSlots, type Save } from './save'
+import { abrirCriacao } from './criar'
 
 const lista = document.querySelector('#slots .lista')!
 
@@ -71,3 +72,9 @@ export function renderizarSlots() {
 }
 
 renderizarSlots()
+
+// Clicar num slot vazio abre a criação do save
+lista.addEventListener('click', (e) => {
+  const slot = (e.target as HTMLElement).closest('.slot.vazio') as HTMLElement | null
+  if (slot) abrirCriacao(Number(slot.dataset.indice), renderizarSlots)
+})
