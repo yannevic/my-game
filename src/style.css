@@ -242,8 +242,44 @@ body {
   justify-content: center;
 }
 
-/* Fundo do slot: acompanha a borda externa dos cantinhos */
-.slot::before {
+/* Fundo do slot: degradê suave com listras finas, tipo um véu */
+.slot.cheio::before {
+  content: '';
+  position: absolute;
+  inset: 2px 6px;
+  background:
+    repeating-linear-gradient(
+      115deg,
+      rgba(255, 244, 224, 0.05) 0 0.5cqw,
+      rgba(255, 244, 224, 0) 0.5cqw 1.6cqw
+    ),
+    linear-gradient(
+      100deg,
+      rgba(120, 62, 78, 0.62) 0%,
+      rgba(150, 96, 84, 0.5) 55%,
+      rgba(196, 140, 110, 0.38) 100%
+    );
+  transition: inset 0.15s ease;
+  pointer-events: none;
+}
+
+.slot.cheio:hover::before {
+  inset: -2px 2px;
+  background:
+    repeating-linear-gradient(
+      115deg,
+      rgba(255, 244, 224, 0.08) 0 0.5cqw,
+      rgba(255, 244, 224, 0) 0.5cqw 1.6cqw
+    ),
+    linear-gradient(
+      100deg,
+      rgba(104, 50, 68, 0.72) 0%,
+      rgba(134, 82, 72, 0.6) 55%,
+      rgba(184, 126, 98, 0.46) 100%
+    );
+}
+
+.slot.vazio::before {
   content: '';
   position: absolute;
   inset: 2px 6px;
@@ -252,15 +288,19 @@ body {
   pointer-events: none;
 }
 
-.slot:hover::before {
+.slot.vazio:hover::before {
   inset: -2px 2px;
   background: rgba(126, 82, 71, 0.55);
 }
 
-.slot img {
+.slot .mais {
   width: 4cqw;
   image-rendering: pixelated;
   transition: transform 0.15s ease;
+}
+
+.slot:hover .mais {
+  transform: scale(1.2);
 }
 
 /* Cantinhos maiores (24px), um pouco para fora do bloco */
@@ -286,10 +326,6 @@ body {
 .slot:hover .c3 { transform: translate(-4px, 4px); }
 .slot:hover .c4 { transform: translate(4px, 4px); }
 
-.slot:hover img {
-  transform: scale(1.2);
-}
-
 #slots .botao {
   width: 20cqw;
   min-width: 20cqw;
@@ -298,6 +334,104 @@ body {
   flex: 0 0 auto;
   margin-top: 1%;
   font-size: 2.5cqw;
+}
+
+/* Slot com save: tudo em coluna, alinhado à esquerda */
+.slot .info {
+  position: absolute;
+  inset: 2.2cqw 4cqw 1.6cqw 4.5cqw;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #fff4e0;
+  text-align: left;
+  text-shadow: 0 0.2cqw 0 rgba(35, 18, 10, 0.7);
+}
+
+/* 1ª linha: nome à esquerda, data à direita */
+.slot .topo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2cqw;
+  padding-right: 9cqw; /* deixa espaço para os botões no canto */
+}
+
+.slot .nome {
+  font-weight: 600;
+  font-size: 3cqw;
+  line-height: 1.1;
+}
+
+.slot .data {
+  font-size: 1.6cqw;
+  color: #fff;
+  opacity: 1;
+  white-space: nowrap;
+}
+
+.slot .stats {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2cqw;
+}
+
+.slot .esq {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6cqw;
+}
+
+.slot .linha {
+  display: flex;
+  align-items: center;
+  gap: 1cqw;
+  font-weight: 600;
+  font-size: 2cqw;
+}
+
+.slot .info img {
+  width: 3cqw;
+  height: 3cqw;
+  image-rendering: auto;
+}
+
+.slot .info .vida {
+  margin-right: -1cqw;
+}
+
+.slot .info .vida img {
+  width: 3.2cqw;
+  height: 3.2cqw;
+}
+
+.slot .mini img {
+  width: 3.4cqw;
+  height: 3.4cqw;
+}
+
+/* Botões: canto superior direito do slot */
+.slot .acoes {
+  position: absolute;
+  top: 1cqw;
+  right: 4cqw;
+  z-index: 2;
+  display: flex;
+  gap: 0.8cqw;
+}
+
+.slot .mini {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: url('/assets/cozy-ui/cursor.png') 10 4, pointer;
+  transition: transform 0.12s ease;
+}
+
+.slot .mini:hover {
+  transform: scale(1.15);
 }
 
 /* Camadas da cena animada (ficam dentro do palco, atrás do casal e dos botões) */
@@ -464,7 +598,7 @@ textarea {
   display: flex;
 }
 
-/* TAMANHO da janelinha: mexa só no 40vh (menor = menor) */
+/* TAMANHO da janelinha: mexa só no 30vh (menor = menor) */
 #confirmar .janela {
   position: relative;
   width: min(90vw, 30vh * 5 / 3);

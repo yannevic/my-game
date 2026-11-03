@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import './style.css'
 import './sair'
+import { renderizarSlots } from './slots'
 
 const VELOCIDADE = 80 // pixels por segundo
 // Altura dos sprites em relação à caixinha de colisão.
@@ -360,6 +361,7 @@ document.fonts.load('500 9px Fredoka').then(() => {
 // Tela inicial: Novo jogo abre os slots; Voltar fecha
 const slotsEl = document.getElementById('slots')!
 document.getElementById('btn-novo')!.addEventListener('click', () => {
+  renderizarSlots()
   slotsEl.classList.add('aberta')
 })
 document.getElementById('btn-voltar')!.addEventListener('click', () => {
